@@ -1,3 +1,6 @@
+:- dynamic symptomValue/2.
+:- use_module(library(lists)).
+
 transfer(X, Y) :-
     Y is X.
     
@@ -36,6 +39,52 @@ yes_no_condition(Answer, Validity) :-
 
 
 
+disorder(major_depressive_disorder,
+    [sadness_or_hopelessness, irritability, excessive_worry_or_anxiety,
+     loss_of_interest, guilt_or_worthlessness, concentration_difficulty,
+     memory_issues, sleeping_problems, fatigue_or_low_energy,
+     psychomotor_changes, reduced_food_intake]).
+
+disorder(anxiety_disorder,
+    [irritability, excessive_worry_or_anxiety, concentration_difficulty,
+     sleeping_problems, fatigue_or_low_energy, socializing_issues]).
+
+disorder(bipolar_disorder,
+    [sadness_or_hopelessness, irritability, loss_of_interest,
+     concentration_difficulty, sleeping_problems, fatigue_or_low_energy,
+     hyperactivity_or_impulsivity, risky_or_impulsive_behavior, psychomotor_changes]).
+
+disorder(post_traumatic_stress_disorder,
+    [irritability, excessive_worry_or_anxiety, loss_of_interest,
+     guilt_or_worthlessness, concentration_difficulty, memory_issues,
+     sudden_intrusive_thoughts, sleeping_problems, risky_or_impulsive_behavior,
+     flashbacks, socializing_issues]).
+
+disorder(anorexia_nervosa,
+    [excessive_worry_or_anxiety, guilt_or_worthlessness, fatigue_or_low_energy,
+     repetitive_or_inflexible_behaviors, reduced_food_intake, body_image_distortion]).
+
+disorder(bulimia_nervosa,
+    [excessive_worry_or_anxiety, guilt_or_worthlessness, binge_eating,
+     compensatory_behaviors, body_image_distortion]).
+
+disorder(major_neurocognitive_disorder,
+    [irritability, concentration_difficulty, memory_issues,
+     disorganized_thinkings, socializing_issues]).
+
+disorder(autism_spectrum_disorder,
+    [irritability, concentration_difficulty, repetitive_or_inflexible_behaviors,
+     socializing_issues]).
+
+disorder(adhd,
+    [concentration_difficulty, disorganized_thinkings, sleeping_problems,
+     hyperactivity_or_impulsivity, risky_or_impulsive_behavior]).
+
+disorder(body_dysmorphic_disorder,
+    [excessive_worry_or_anxiety, guilt_or_worthlessness, repetitive_or_inflexible_behaviors,
+     body_image_distortion, socializing_issues]).
+
+
 
 read_the_input(Input) :-
     write('Please enter something: '), nl,
@@ -68,6 +117,7 @@ frequency(Answer, Percentage) :-
     ; 
         Percentage is -1.0 % Invalid input
     ).
+
 
 
 majorDepressiveOrder(SadnessFreq, IrritabilityFreq, WorryFreq, InterestFreq, GuiltFreq,
@@ -137,6 +187,7 @@ frequencyScore(AvgFrq, DisorderName) :-
     ).
     
 
+
 mainProgram :-
     %Behavioral symptoms are most likely y/n answers, while frequency-based symptoms accept rarely/sometimes/often/frequently
 
@@ -171,6 +222,10 @@ mainProgram :-
     symptomPrompt(Socializing_issues, '20/21: How often have you felt isolated, avoided social situations, or had difficulty connecting with others? (rarely/sometimes/often/frequently)'),
     symptomPrompt(Disorganized_thinkings, '21/21: Have people told you that your thoughts seem disorganized, racing, or hard to follow? (y/n)'),
     
+
+
+
+    %Calculate frequencies, procedural results
     frequency(Sadness_or_hopelessness, SadnessFreq),
     frequency(Irritability, IrritabilityFreq),
     frequency(Excessive_worry_or_anxiety, WorryFreq),
@@ -193,6 +248,32 @@ mainProgram :-
     frequency(Socializing_issues, SocialFreq),
     frequency(Disorganized_thinkings, DisorganizedFreq), 
 
+    %Store symptom values, declarative thinking
+    assertz(symptomValue(sadness_or_hopelessness, SadnessFreq)),
+    assertz(symptomValue(irritability, IrritabilityFreq)),
+    assertz(symptomValue(excessive_worry_or_anxiety, WorryFreq)),
+    assertz(symptomValue(loss_of_interest, InterestFreq)),
+    assertz(symptomValue(guilt_or_worthlessness, GuiltFreq)),
+    assertz(symptomValue(concentration_difficulty, ConcentrationFreq)),
+    assertz(symptomValue(memory_issues, MemoryFreq)),
+    assertz(symptomValue(sudden_intrusive_thoughts, IntrusiveFreq)),
+    assertz(symptomValue(sleeping_problems, SleepFreq)),
+    assertz(symptomValue(fatigue_or_low_energy, FatigueFreq)),
+    assertz(symptomValue(hyperactivity_or_impulsivity, HyperImpulsivityFreq)),
+    assertz(symptomValue(repetitive_or_inflexible_behaviors, RepetitiveFreq)),
+    assertz(symptomValue(risky_or_impulsive_behavior, RiskyFreq)),
+    assertz(symptomValue(psychomotor_changes, PsychomotorFreq)),
+    assertz(symptomValue(reduced_food_intake, ReducedFoodFreq)),
+    assertz(symptomValue(binge_eating, BingeFreq)),
+    assertz(symptomValue(compensatory_behaviors, CompensatoryFreq)),
+    assertz(symptomValue(body_image_distortion, BodyImageFreq)),
+    assertz(symptomValue(flashbacks, FlashbackFreq)),
+    assertz(symptomValue(socializing_issues, SocialFreq)),
+    assertz(symptomValue(disorganized_thinkings, DisorganizedFreq)),
+
+
+
+    %Display assessments, procedural results
     majorDepressiveOrder(SadnessFreq, IrritabilityFreq, WorryFreq, InterestFreq, GuiltFreq,
         ConcentrationFreq, MemoryFreq, SleepFreq, FatigueFreq,
         PsychomotorFreq, ReducedFoodFreq),
@@ -208,5 +289,33 @@ mainProgram :-
     aDHD(ConcentrationFreq,DisorganizedFreq,SleepFreq, HyperImpulsivityFreq, RiskyFreq),
     bodyDismorphicDisorder(WorryFreq, GuiltFreq, RepetitiveFreq, BodyImageFreq, SocialFreq),
 
-
+    nl, displayMostProbableDisorder, nl,
     write('Thank you for completing the assessment. Processing your responses...'), nl.
+
+%Knowledge base to calculate overall scores
+symptomListScores(Symptoms, Score) :-
+    findall(Value, (member(Iterator, Symptoms), symptomValue(Iterator, Value)), Values),
+    sum_list(Values, Total),
+    length(Values, Count),
+    Score is Total / Count.
+    
+computeDisorderScore(Disorder, Score) :-
+    disorder(Disorder, Symptoms),
+    symptomListScores(Symptoms, Score).
+
+analyzeDisorders :-
+    computeDisorderScore(Disorder, Score),
+    format('~w: ~2f~n', [Disorder, Score]),
+    fail.
+analyzeDisorders. 
+
+allDisorderScores(List) :-
+    findall(Score-Disorder, computeDisorderScore(Disorder, Score), List).
+
+displayMostProbableDisorder :-
+    allDisorderScores(List),
+    max_member(MaxScore-_, List),
+    findall(Iterator, member(MaxScore-Iterator, List), MaxDisorders),
+     nl,
+    format('Most probable disorder(s) with score ~2f: ~w~n', [MaxScore, MaxDisorders]),
+     nl.
