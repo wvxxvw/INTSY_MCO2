@@ -44,7 +44,7 @@ read_the_input(Input) :-
 
 symptomPrompt(Answer,Question) :-
     write(Question), nl,
-    read(Answer),
+    read(CurrentAnswer),
     transfer2(Answer, CurrentAnswer),
     yes_no_condition(CurrentAnswer, Validity),
     (Validity == good ->
@@ -53,11 +53,88 @@ symptomPrompt(Answer,Question) :-
         write('Please answer with y/Y or n/N only.'), nl,
         symptomPrompt(Answer, Question)    
     ).
-frequency(Answer) :-
-major_depressive_disorder_assessment(sadness_or_hopelessness, irritability, excessive_worry_or_anxiety) :-
+frequency(Answer, Percentage) :- 
+    (Answer == 'rarely' ->
+        Percentage is 0.25
+    ; Answer == 'sometimes' ->
+        Percentage is 0.5
+    ; Answer == 'often' ->
+        Percentage is 0.75
+    ; (Answer == 'frequently' ; Answer == 'Y'; Answer == 'y'; Answer == 'N'; Answer == 'n') ->
+        Percentage is 1.0
+    ; 
+        Percentage is -1.0 % Invalid input
+    ).
 
 
-main :-
+majorDepressiveOrder(SadnessFreq, IrritabilityFreq, WorryFreq, InterestFreq, GuiltFreq,
+                    Concentration_difficulty, Memory_issues, SleepFreq, FatigueFreq,
+                    PsychomotorFreq, ReducedFoodFreq) :-
+    TotalFreq is SadnessFreq + IrritabilityFreq + WorryFreq + InterestFreq + GuiltFreq
+                + Concentration_difficulty + Memory_issues + SleepFreq + FatigueFreq
+                + PsychomotorFreq + ReducedFoodFreq,
+    AverageFreq is TotalFreq / 11,
+    frequencyScore(AverageFreq, 'Major Depressive Disorder').
+
+anxietyDisorder(IrritabilityFreq, WorryFreq, Concentration_difficulty, SleepFreq, FatigueFreq, SocialFreq) :-
+    TotalFreq is IrritabilityFreq + WorryFreq + Concentration_difficulty + SleepFreq + FatigueFreq + SocialFreq,
+    AverageFreq is TotalFreq / 6,
+    frequencyScore(AverageFreq, 'Anxiety Disorder').
+
+bipolarDisorder(SadnessFreq, IrritabilityFreq, InterestFreq, ConcentrationFreq, SleepFreq, FatigueFreq, HyperImpulsivityFreq, RiskyFreq, PsychomotorFreq):-
+    TotalFreq is SadnessFreq + IrritabilityFreq + InterestFreq + ConcentrationFreq + SleepFreq + FatigueFreq
+                + HyperImpulsivityFreq + RiskyFreq + PsychomotorFreq,
+    AverageFreq is TotalFreq / 9,
+    frequencyScore(AverageFreq, 'Bipolar Disorder').
+
+postTraumaticStressDisorder(IrritabilityFreq, WorryFreq, InterestFreq, GuiltFreq, ConcentrationFreq, MemoryFreq, IntrusiveFreq, SleepFreq, RiskyFreq, FlashbackFreq, SocialFreq):-
+    TotalFreq is IrritabilityFreq + WorryFreq + InterestFreq + GuiltFreq + ConcentrationFreq + MemoryFreq + IntrusiveFreq
+                + SleepFreq + RiskyFreq + FlashbackFreq + SocialFreq,
+    AverageFreq is TotalFreq / 11,
+    frequencyScore(AverageFreq, 'Post-Traumatic Stress Disorder').
+
+anorexiaNervosa(WorryFreq, GuiltFreq, FatigueFreq, RepetitiveFreq, ReducedFoodFreq, BodyImageFreq) :-
+    TotalFreq is WorryFreq + GuiltFreq + FatigueFreq + RepetitiveFreq + ReducedFoodFreq + BodyImageFreq,
+    AverageFreq is TotalFreq / 6,
+    frequencyScore(AverageFreq, 'Anorexia Nervosa').
+
+bulimiaNervosa(WorryFreq, GuiltFreq, BingeFreq, CompensatoryFreq, BodyImageFreq) :-
+    TotalFreq is WorryFreq + GuiltFreq + BingeFreq + CompensatoryFreq + BodyImageFreq,
+    AverageFreq is TotalFreq / 5,
+    frequencyScore(AverageFreq, 'Bulimia Nervosa').
+
+MajorNeurocognitiveDisorder(IrritabilityFreq, ConcentrationFreq, MemoryFreq, DisorganizedFreq, SocialFreq) :-
+    TotalFreq is IrritabilityFreq + ConcentrationFreq + MemoryFreq + DisorganizedFreq + SocialFreq,
+    AverageFreq is TotalFreq / 5,
+    frequencyScore(AverageFreq, 'Major Neurocognitive Disorder').
+
+AutismSpectrumDisorder(IrritabilityFreq, ConcentrationFreq, RepetitiveFreq, SocialFreq) :-
+    TotalFreq is IrritabilityFreq + ConcentrationFreq + RepetitiveFreq + SocialFreq,
+    AverageFreq is TotalFreq / 4,
+    frequencyScore(AverageFreq, 'Autism Spectrum Disorder').
+
+ADHD(ConcentrationFreq,DisorganizedFreq,SleepFreq, HyperImpulsivityFreq, RiskyFreq):-
+    TotalFreq is ConcentrationFreq + DisorganizedFreq + SleepFreq + HyperImpulsivityFreq + RiskyFreq,
+    AverageFreq is TotalFreq / 5,
+    frequencyScore(AverageFreq, 'Attention-Deficit/Hyperactivity Disorder (ADHD)').
+
+BodyDismorphicDisorder(WorryFreq, GuiltFreq, RepetitiveFreq, BodyImageFreq, SocialFreq) :-
+    TotalFreq is WorryFreq + GuiltFreq + RepetitiveFreq + BodyImageFreq + SocialFreq,
+    AverageFreq is TotalFreq / 5,
+    frequencyScore(AverageFreq, 'Body Dysmorphic Disorder').
+
+frequencyScore(AvgFrq, DisorderName) :-
+    write('Your '), write(DisorderName), write(' Symptom Frequency Score is: '), write(AvgFrq), nl,
+    (AvgFrq >= 0.7 ->
+        write('High likelihood of '), write(DisorderName), write(' symptoms.'), nl
+    ; AvgFrq >= 0.4 ->
+        write('Moderate likelihood of '), write(DisorderName), write(' symptoms.'), nl
+    ;
+        write('Low likelihood of '), write(DisorderName), write(' symptoms.'), nl
+    )
+    
+
+mainProgram :-
     //Behavioral symptoms are most likely y/n answers, while frequency-based symptoms accept rarely/sometimes/often/frequently
 
     // Emotional State
@@ -90,3 +167,45 @@ main :-
     symptomPrompt(Flashbacks, '19/21: Have you had experiences where you feel like you are reliving a past traumatic event (a flashback)? (y/n)').
     symptomPrompt(Socializing_issues, '20/21: How often have you felt isolated, avoided social situations, or had difficulty connecting with others? (rarely/sometimes/often/frequently)').
     symptomPrompt(Disorganized_thinkings, '21/21: Have people told you that your thoughts seem disorganized, racing, or hard to follow? (y/n)').
+    
+    frequency(Sadness_or_hopelessness, SadnessFreq),
+    frequency(Irritability, IrritabilityFreq),
+    frequency(Excessive_worry_or_anxiety, WorryFreq),
+    frequency(Loss_of_interest, InterestFreq),
+    frequency(Guilt_or_worthlessness, GuiltFreq),
+    frequency(Concentration_difficulty, ConcentrationFreq),
+    frequency(Memory_issues, MemoryFreq),
+    frequency(Sudden_intrusive_thoughts, IntrusiveFreq),
+    frequency(Sleeping_problems, SleepFreq),
+    frequency(Fatigue_or_low_energy, FatigueFreq),
+    frequency(Hyperactivity_or_impulsivity, HyperImpulsivityFreq),
+    frequency(Repetitive_or_inflexible_behaviors, RepetitiveFreq), 
+    frequency(Risky_or_impulsive_behavior, RiskyFreq), 
+    frequency(Psychomotor_changes, PsychomotorFreq),
+    frequency(Reduced_food_intake, ReducedFoodFreq), 
+    frequency(Binge_eating, BingeFreq), 
+    frequency(Compensatory_behaviors, CompensatoryFreq), 
+    frequency(Body_image_distortion, BodyImageFreq), 
+    frequency(Flashbacks, FlashbackFreq), 
+    frequency(Socializing_issues, SocialFreq),
+    frequency(Disorganized_thinkings, DisorganizedFreq), 
+
+    majorDepressiveOrder(SadnessFreq, IrritabilityFreq, WorryFreq, InterestFreq, GuiltFreq,
+        ConcentrationFreq, MemoryFreq, SleepFreq, FatigueFreq,
+        PsychomotorFreq, ReducedFoodFreq),
+    anxietyDisorder(IrritabilityFreq, WorryFreq, ConcentrationFreq, SleepFreq, FatigueFreq, SocialFreq),
+    bipolarDisorder(SadnessFreq, IrritabilityFreq, InterestFreq, Concentration
+Freq, SleepFreq, FatigueFreq,
+        HyperImpulsivityFreq, RiskyFreq, PsychomotorFreq),
+    postTraumaticStressDisorder(IrritabilityFreq, WorryFreq, InterestFreq, GuiltFreq, ConcentrationFreq, MemoryFreq, IntrusiveFreq,
+        SleepFreq, RiskyFreq, FlashbackFreq, SocialFreq),
+    anorexiaNervosa(WorryFreq, GuiltFreq, FatigueFreq, RepetitiveFreq, ReducedFoodFreq, BodyImageFreq),
+    bulimiaNervosa(WorryFreq, GuiltFreq, BingeFreq, CompensatoryFreq, BodyImageFreq),
+    MajorNeurocognitiveDisorder(IrritabilityFreq, ConcentrationFreq, MemoryFreq, DisorganizedFreq,
+        SocialFreq),
+    AutismSpectrumDisorder(IrritabilityFreq, ConcentrationFreq, RepetitiveFreq, SocialFreq),
+    ADHD(ConcentrationFreq,DisorganizedFreq,SleepFreq, HyperImpulsivityFreq, RiskyFreq),
+    BodyDismorphicDisorder(WorryFreq, GuiltFreq, RepetitiveFreq, BodyImageFreq, SocialFreq),
+
+
+    write('Thank you for completing the assessment. Processing your responses...'), nl.
