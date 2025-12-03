@@ -119,6 +119,7 @@ frequency(Answer, Percentage) :-
     ).
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% BAD CODE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 majorDepressiveOrder(SadnessFreq, IrritabilityFreq, WorryFreq, InterestFreq, GuiltFreq,
                     Concentration_difficulty, Memory_issues, SleepFreq, FatigueFreq,
@@ -175,6 +176,9 @@ bodyDismorphicDisorder(WorryFreq, GuiltFreq, RepetitiveFreq, BodyImageFreq, Soci
     TotalFreq is WorryFreq + GuiltFreq + RepetitiveFreq + BodyImageFreq + SocialFreq,
     AverageFreq is TotalFreq / 5,
     frequencyScore(AverageFreq, 'Body Dysmorphic Disorder').
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% BAD CODE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 frequencyScore(AvgFrq, DisorderName) :-
     write('Your '), write(DisorderName), write(' Symptom Frequency Score is: '), write(AvgFrq), nl,
@@ -273,6 +277,8 @@ mainProgram :-
     assertz(symptomValue(disorganized_thinkings, DisorganizedFreq)),
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% BAD CODE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
     %Display assessments, procedural results
     majorDepressiveOrder(SadnessFreq, IrritabilityFreq, WorryFreq, InterestFreq, GuiltFreq,
@@ -290,8 +296,12 @@ mainProgram :-
     aDHD(ConcentrationFreq,DisorganizedFreq,SleepFreq, HyperImpulsivityFreq, RiskyFreq),
     bodyDismorphicDisorder(WorryFreq, GuiltFreq, RepetitiveFreq, BodyImageFreq, SocialFreq),
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% BAD CODE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
     nl, displayMostProbableDisorder, nl,
     write('Thank you for completing the assessment. Processing your responses...'), nl.
+
 
 %Knowledge base to calculate overall scores
 symptomListScores(Symptoms, Score) :-
