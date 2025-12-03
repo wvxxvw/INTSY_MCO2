@@ -189,6 +189,7 @@ frequencyScore(AvgFrq, DisorderName) :-
 
 
 mainProgram :-
+    resetAnswers,
     %Behavioral symptoms are most likely y/n answers, while frequency-based symptoms accept rarely/sometimes/often/frequently
 
     %Emotional State
@@ -196,7 +197,7 @@ mainProgram :-
     symptomPrompt(Irritability, '2/21: How often have you felt easily annoyed, agitated, or irritable? (rarely/sometimes/often/frequently)'),
     symptomPrompt(Excessive_worry_or_anxiety, '3/21: How often have you been bothered by worrying too much about different things or feeling anxious? (rarely/sometimes/often/frequently)'),
     symptomPrompt(Loss_of_interest, '4/21: How often have you lost interest or pleasure in doing things you usually enjoy? (rarely/sometimes/often/frequently)'),
-    symptomPrompt(Guilt_or_worthlessness, '5/21: How often have you felt bad about yourself—or that you are a failure or have let yourself or your family down? (rarely/sometimes/often/frequently)'),
+    symptomPrompt(Guilt_or_worthlessness, '5/21: How often have you felt bad about yourself, or that you are a failure or have let yourself or your family down? (rarely/sometimes/often/frequently)'),
 
     %Cognitive Function
     symptomPrompt(Concentration_difficulty, '6/21: How often have you had difficulty concentrating on things, such as reading the newspaper or watching television? (rarely/sometimes/often/frequently)'),
@@ -315,7 +316,13 @@ allDisorderScores(List) :-
 displayMostProbableDisorder :-
     allDisorderScores(List),
     max_member(MaxScore-_, List),
-    findall(Iterator, member(MaxScore-Iterator, List), MaxDisorders),
-     nl,
-    format('Most probable disorder(s) with score ~2f: ~w~n', [MaxScore, MaxDisorders]),
-     nl.
+    ( MaxScore =\= 0
+    -> findall(D, member(MaxScore-D, List), MaxDisorders),
+       nl,
+       format('Most probable disorder(s) with score ~2f: ~w~n', [MaxScore, MaxDisorders]),
+       nl
+    ;  writeln('No probable disorder, insufficient symptoms.')
+    ).
+
+resetAnswers :-
+    retractall(symptomValue(_, _)).
